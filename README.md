@@ -11,13 +11,11 @@ We already created a DockerContainer with all dependencies to run on Snellius, i
 
 ### Installing
 
-To get started with this project, you need to clone the repository to your local machine. You can do this by running the following command in your terminal:
+To get started with this project, you need to clone the repository to Snellius or your local machine. You can do this by running the following command in your terminal:
 
 ```bash
 git clone https://github.com/5LSM0/FinalAssignment.git
 ```
-
-Replace yourusername with your actual GitHub username.  After cloning the repository, navigate to the project directory:
 
 After cloning the repository, navigate to the project directory:
 
