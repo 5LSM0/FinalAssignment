@@ -4,12 +4,12 @@ __pycache__/
 # Ignore archives folder
 /archive/
 /scrap/
+/ignore/
 
-# Ignore all the .txt files
-*.txt
+# Ignore all the .txt. files
 
 # Ignore all the saved PNG files
-*.png
+
 
 # Ignore 'template-job-script.sh'
 template-job-script.sh

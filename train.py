@@ -41,6 +41,8 @@ def main(args):
     image_size = dataset[0][0].size()
     num_classes = dataset.classes
 
+    
+
     # Create and open a text file
     with open('dataset_info.txt', 'w') as file:
         # Original/untransformed dataset info
