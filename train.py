@@ -3,13 +3,13 @@ This file needs to contain the main training loop. The training code should be e
 avoid any global variables.
 """
 from model import Model
+from model_executables import train_model_wandb
 from torchvision.datasets import Cityscapes
 from argparse import ArgumentParser
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
-# imports for the Weights&Biases set up
+
 import wandb
-import random
 
 def get_arg_parser():
     parser = ArgumentParser()
@@ -21,70 +21,41 @@ def get_arg_parser():
 def main(args):
     """define your model, trainingsloop optimitzer etc. here"""
 
-    # start a new wandb run to track this script
-    wandb.init(
-        # set the wandb project where this run will be logged
-        project="5LSM0-first-WB-mockUp-tran",
-        
-        # track hyperparameters and run metadata
-        config={
-        "learning_rate": 0.02,
-        "architecture": "UNet",
-        "dataset": "Cityspace",
-        "epochs": 10,
-        }
-    )
-
-    # simulate training
-    epochs = 10
-    offset = random.random() / 5
-    for epoch in range(2, epochs):
-        acc = 1 - 2 ** -epoch - random.random() / epoch - offset
-        loss = 2 ** -epoch + random.random() / epoch + offset
-        
-        # log metrics to wandb
-        wandb.log({"acc": acc, "loss": loss})
-        
-    # [optional] finish the wandb run, necessary in notebooks
-    wandb.finish()
-
-    # Define set of transforms
     # Define the transformations
     data_transforms = transforms.Compose([
         transforms.ToTensor(),  # Convert PIL Image to PyTorch Tensor
         transforms.Resize((256,256),antialias=True)
     ])
 
-    # data loading
-    original_dataset = Cityscapes(args.data_path, split='train', mode='fine', target_type='semantic', transform=None, target_transform=None)
-    dataset = Cityscapes(args.data_path, split='train', mode='fine', target_type='semantic', transform=data_transforms, target_transform=data_transforms)
+    # Create transformed train dataset
+    training_dataset = Cityscapes(args.data_path, split='train', mode='fine', target_type='semantic', transform=data_transforms, target_transform=data_transforms)
 
-    # Extract info about the original dataset
-    num_images_original = len(original_dataset)
-    image_original, _ = original_dataset[0]
-    image_size_original = image_original.width, image_original.height
-    num_classes_original = original_dataset.classes
+    # Create transformed train dataset
+    validation_dataset = Cityscapes(args.data_path, split='val', mode='fine', target_type='semantic', transform=data_transforms, target_transform=data_transforms)
 
-    # Extract info about the transformed dataset
-    num_images = len(dataset)
-    image_size = dataset[0][0].size()
-    num_classes = dataset.classes
+    # Extract info about the transformed training dataset
+    train_num_images = len(training_dataset)
+    train_image_size = training_dataset[0][0].size()
+    train_num_classes = training_dataset.classes
 
-    
+    # Extract info about the transformed validation dataset
+    val_num_images = len(validation_dataset)
+    val_image_size = validation_dataset[0][0].size()
+    val_num_classes = validation_dataset.classes
 
     # Create and open a text file
     with open('dataset_info.txt', 'w') as file:
-        # Original/untransformed dataset info
-        file.write("Dataset state after transform:\n")
-        file.write(f"Number of images: {num_images_original}\n")
-        file.write(f"Image size: {image_size_original}\n")
-        file.write(f"Number of classes: {num_classes_original}\n")
-        # Dataset info AFTER applying the transforms
+        # Transformed training dataset info
+        file.write("Training Dataset state after transform:\n")
+        file.write(f"Number of images: {train_num_images}\n")
+        file.write(f"Image size: {train_image_size}\n")
+        file.write(f"Number of classes: {train_num_classes}\n")
+        # Transformed validation dataset info
         file.write("\n")
-        file.write("Dataset state after transform:\n")
-        file.write(f"Number of images: {num_images}\n")
-        file.write(f"Image size: {image_size}\n")
-        file.write(f"Number of classes: {num_classes}\n")
+        file.write("Validation Dataset state after transform:\n")
+        file.write(f"Number of images: {val_num_images}\n")
+        file.write(f"Image size: {val_image_size}\n")
+        file.write(f"Number of classes: {val_num_classes}\n")
 
     # visualize example images
     
@@ -108,19 +79,43 @@ def main(args):
     plt.savefig('Cityspace-test-vis.png')
     
     plt.show()
+    
+    # Create Training and Validation DataLoaders
+    train_loader = torch.utils.data.DataLoader(training_dataset, batch_size=10, shuffle=True, num_workers=2,
+                                            pin_memory=True if torch.cuda.is_available() else False)
 
-    # define model
-    # model = Model().cuda()
+    val_loader = torch.utils.data.DataLoader(validation_dataset, batch_size=10, shuffle=True, num_workers=2,
+                                            pin_memory=True if torch.cuda.is_available() else False)
+
+    # Instanciate the model
+    UNet_model = Model()
+
+    # Move the model to the GPu if avaliable
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    UNet_model = UNet_model.to(device)
 
     # define optimizer and loss function (don't forget to ignore class index 255)
 
+    # start a new wandb run to track this script
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="5LSM0-WB-UNet-train",
+        
+        # track hyperparameters and run metadata
+        config={
+        "learning_rate": 0.01,
+        "architecture": "UNet",
+        "dataset": "Cityspace",
+        "epochs": 50,
+        }
+    )
 
-    # training/validation loop
+    # Train the instanciated model
+    train_model_wandb(model=UNet_model, train_loader=train_loader, val_loader=val_loader, num_epochs=50, lr=0.01, patience=4)
 
-
-    # save model
-
-
+    # [optional] finish the wandb run, necessary in notebooks
+    wandb.finish()
+    
     # visualize some results
 
     pass
