@@ -10,3 +10,6 @@ __pycache__/
 
 # Ignore all the saved PNG files
 *.png
+
+# Ignore 'template-job-script.sh'
+template-job-script.sh
