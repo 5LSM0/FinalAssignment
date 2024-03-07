@@ -7,7 +7,9 @@ from torchvision.datasets import Cityscapes
 from argparse import ArgumentParser
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
-
+# imports for the Weights&Biases set up
+import wandb
+import random
 
 def get_arg_parser():
     parser = ArgumentParser()
@@ -18,6 +20,33 @@ def get_arg_parser():
 
 def main(args):
     """define your model, trainingsloop optimitzer etc. here"""
+
+    # start a new wandb run to track this script
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="5LSM0-first-WB-mockUp-tran",
+        
+        # track hyperparameters and run metadata
+        config={
+        "learning_rate": 0.02,
+        "architecture": "UNet",
+        "dataset": "Cityspace",
+        "epochs": 10,
+        }
+    )
+
+    # simulate training
+    epochs = 10
+    offset = random.random() / 5
+    for epoch in range(2, epochs):
+        acc = 1 - 2 ** -epoch - random.random() / epoch - offset
+        loss = 2 ** -epoch + random.random() / epoch + offset
+        
+        # log metrics to wandb
+        wandb.log({"acc": acc, "loss": loss})
+        
+    # [optional] finish the wandb run, necessary in notebooks
+    wandb.finish()
 
     # Define set of transforms
     # Define the transformations

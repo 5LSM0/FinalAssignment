@@ -13,3 +13,6 @@ __pycache__/
 
 # Ignore 'template-job-script.sh'
 template-job-script.sh
+
+# Ignore all output logs from snellius
+*.out
