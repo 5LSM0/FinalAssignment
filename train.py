@@ -3,7 +3,7 @@ This file needs to contain the main training loop. The training code should be e
 avoid any global variables.
 """
 from model import Model
-from model_executables import train_model_wandb
+from model_executables import train_model_wandb_noval
 from torchvision.datasets import Cityscapes
 from argparse import ArgumentParser
 import torchvision.transforms as transforms
@@ -30,8 +30,8 @@ def main(args):
     # Create transformed train dataset
     training_dataset = Cityscapes(args.data_path, split='train', mode='fine', target_type='semantic', transform=data_transforms, target_transform=data_transforms)
 
-    # Create transformed train dataset
-    validation_dataset = Cityscapes(args.data_path, split='val', mode='fine', target_type='semantic', transform=data_transforms, target_transform=data_transforms)
+    # # Create transformed train dataset
+    # validation_dataset = Cityscapes(args.data_path, split='val', mode='fine', target_type='semantic', transform=data_transforms, target_transform=data_transforms)
 
     # Extract info about the transformed training dataset
     train_num_images = len(training_dataset)
@@ -39,9 +39,9 @@ def main(args):
     train_num_classes = training_dataset.classes
 
     # Extract info about the transformed validation dataset
-    val_num_images = len(validation_dataset)
-    val_image_size = validation_dataset[0][0].size()
-    val_num_classes = validation_dataset.classes
+    # val_num_images = len(validation_dataset)
+    # val_image_size = validation_dataset[0][0].size()
+    # val_num_classes = validation_dataset.classes
 
     # Create and open a text file
     with open('dataset_info.txt', 'w') as file:
@@ -51,11 +51,11 @@ def main(args):
         file.write(f"Image size: {train_image_size}\n")
         file.write(f"Number of classes: {train_num_classes}\n")
         # Transformed validation dataset info
-        file.write("\n")
-        file.write("Validation Dataset state after transform:\n")
-        file.write(f"Number of images: {val_num_images}\n")
-        file.write(f"Image size: {val_image_size}\n")
-        file.write(f"Number of classes: {val_num_classes}\n")
+        # file.write("\n")
+        # file.write("Validation Dataset state after transform:\n")
+        # file.write(f"Number of images: {val_num_images}\n")
+        # file.write(f"Image size: {val_image_size}\n")
+        # file.write(f"Number of classes: {val_num_classes}\n")
 
     # visualize example images
     
@@ -84,8 +84,8 @@ def main(args):
     train_loader = torch.utils.data.DataLoader(training_dataset, batch_size=10, shuffle=True, num_workers=2,
                                             pin_memory=True if torch.cuda.is_available() else False)
 
-    val_loader = torch.utils.data.DataLoader(validation_dataset, batch_size=10, shuffle=True, num_workers=2,
-                                            pin_memory=True if torch.cuda.is_available() else False)
+    # val_loader = torch.utils.data.DataLoader(validation_dataset, batch_size=10, shuffle=True, num_workers=2,
+    #                                         pin_memory=True if torch.cuda.is_available() else False)
 
     # Instanciate the model
     UNet_model = Model()
@@ -111,7 +111,7 @@ def main(args):
     )
 
     # Train the instanciated model
-    train_model_wandb(model=UNet_model, train_loader=train_loader, val_loader=val_loader, num_epochs=50, lr=0.01, patience=4)
+    train_model_wandb_noval(model=UNet_model, train_loader=train_loader, num_epochs=50, lr=0.01, patience=4)
 
     # [optional] finish the wandb run, necessary in notebooks
     wandb.finish()

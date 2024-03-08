@@ -88,6 +88,65 @@ def train_model(model, train_loader, val_loader, num_epochs=5, lr=0.01, patience
             # Write to the log file
             file.write(f'Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_epoch_loss:.4f}, Train Accuracy: {accuracy_train:.4f}, Val Loss: {epoch_val_loss:.4f}, Val Accuracy: {accuracy_val:.4f}\n')
 
+def train_model_noval(model, train_loader, num_epochs=5, lr=0.01, patience=3):
+    criterion = nn.CrossEntropyLoss(ignore_index=255)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    # Initialize best_train_loss here
+    best_train_loss = float('inf')
+
+    # Create and open a text file
+    with open('training_log.txt', 'w') as file:
+        for epoch in range(num_epochs):
+            # Initialize accuracy variables for each epoch
+            total_correct_train, total_samples_train = 0, 0
+
+            # TRAINING
+            model.train()
+            running_train_loss = 0.0
+            for inputs, masks in train_loader:
+                # Move inputs and masks to the GPU
+                inputs, masks = inputs.to(device), masks.to(device)
+
+                optimizer.zero_grad()
+                outputs = model(inputs)
+                masks = (masks * 255)
+                loss = criterion(outputs, masks.long().squeeze())
+                loss.backward()
+                optimizer.step()
+
+                running_train_loss += loss.item()
+
+                # Compute training accuracy
+                _, predicted = torch.max(outputs, 1)
+                total_correct_train += (predicted == masks.long().squeeze()).sum().item()
+                total_samples_train += masks.numel()
+
+            train_epoch_loss = running_train_loss / len(train_loader)
+
+            # Early stopping functionality based on training loss
+            if train_epoch_loss < best_train_loss:
+                best_train_loss = train_epoch_loss
+                num_consecutive_epoch_without_improve = 0
+            else:
+                num_consecutive_epoch_without_improve += 1
+
+            if num_consecutive_epoch_without_improve >= patience:
+                print(f"EARLY STOPPING INVOKED: Training halted after {num_consecutive_epoch_without_improve} epochs without improvement.")
+                break
+
+            # Calculate and print accuracy
+            accuracy_train = total_correct_train / total_samples_train
+
+            # Write to the log file
+            file.write(f'Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_epoch_loss:.4f}, Train Accuracy: {accuracy_train:.4f}\n')
+
+    # Saving the model after the entire training process went interupted
+    save_checkpoint_noval(model, optimizer, epoch, best_train_loss)
+
+
 def train_model_wandb(model, train_loader, val_loader, num_epochs=5, lr=0.01, patience=3):
     criterion = nn.CrossEntropyLoss(ignore_index=255)
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -183,4 +242,79 @@ def save_checkpoint(model, optimizer, epoch, val_loss):
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'val_loss': val_loss,
+    }, checkpoint_path)
+
+
+def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience=3):
+    criterion = nn.CrossEntropyLoss(ignore_index=255)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    # Initialize best_train_loss here
+    best_train_loss = float('inf')
+
+    # Create and open a text file
+    with open('training_log.txt', 'w') as file:
+        for epoch in range(num_epochs):
+            # Initialize accuracy variables for each epoch
+            total_correct_train, total_samples_train = 0, 0
+
+            # TRAINING
+            model.train()
+            running_train_loss = 0.0
+            for inputs, masks in train_loader:
+                # Move inputs and masks to the GPU
+                inputs, masks = inputs.to(device), masks.to(device)
+
+                optimizer.zero_grad()
+                outputs = model(inputs)
+                masks = (masks * 255)
+                loss = criterion(outputs, masks.long().squeeze())
+                loss.backward()
+                optimizer.step()
+
+                running_train_loss += loss.item()
+
+                # Compute training accuracy
+                _, predicted = torch.max(outputs, 1)
+                total_correct_train += (predicted == masks.long().squeeze()).sum().item()
+                total_samples_train += masks.numel()
+
+            train_epoch_loss = running_train_loss / len(train_loader)
+
+            # Early stopping functionality based on training loss
+            if train_epoch_loss < best_train_loss:
+                best_train_loss = train_epoch_loss
+                num_consecutive_epoch_without_improve = 0
+            else:
+                num_consecutive_epoch_without_improve += 1
+
+            if num_consecutive_epoch_without_improve >= patience:
+                file.write(f"EARLY STOPPING INVOKED: Training halted after {num_consecutive_epoch_without_improve} epochs without improvement.")
+                break
+
+            # Calculate and print accuracy
+            accuracy_train = total_correct_train / total_samples_train
+
+            # Log metrics to WandB
+            wandb.log({
+                'Epoch': epoch + 1,
+                'Train Loss': train_epoch_loss,
+                'Train Accuracy': accuracy_train
+            })
+
+            # Write to the log file
+            file.write(f'Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_epoch_loss:.4f}, Train Accuracy: {accuracy_train:.4f}\n')
+
+    # Saving the model after the entire training process went interupted
+    save_checkpoint_noval(model, optimizer, epoch, best_train_loss)
+
+def save_checkpoint_noval(model, optimizer, epoch, train_loss):
+    checkpoint_path = 'model_checkpoint.pth'
+    torch.save({
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'train_loss': train_loss,
     }, checkpoint_path)
