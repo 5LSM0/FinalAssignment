@@ -62,7 +62,7 @@ def main(args):
     plt.subplots(4, 2, figsize=(10, 15))
     
     for i in range(4):
-        img, lbl = dataset[i]
+        img, lbl = training_dataset[i]
     
         img_np = img.permute(1, 2, 0)
         lbl_np = lbl.permute(1, 2, 0)
