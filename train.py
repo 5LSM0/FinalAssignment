@@ -2,6 +2,7 @@
 This file needs to contain the main training loop. The training code should be encapsulated in a main() function to
 avoid any global variables.
 """
+import torch
 from model import Model
 from model_executables import train_model_wandb_noval
 from torchvision.datasets import Cityscapes
