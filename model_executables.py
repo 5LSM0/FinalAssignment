@@ -284,14 +284,9 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
             train_epoch_loss = running_train_loss / len(train_loader)
 
             # Early stopping functionality based on training loss
-            if train_epoch_loss < best_train_loss:
-                best_train_loss = train_epoch_loss
-                num_consecutive_epoch_without_improve = 0
-            else:
-                num_consecutive_epoch_without_improve += 1
 
-            if num_consecutive_epoch_without_improve >= patience:
-                file.write(f"EARLY STOPPING INVOKED: Training halted after {num_consecutive_epoch_without_improve} epochs without improvement.")
+            if train_epoch_loss <0.2:
+                file.write(f"EARLY STOPPING INVOKED: Training halted after {epoch + 1} epochs without improvement.")
                 break
 
             # Calculate and print accuracy
