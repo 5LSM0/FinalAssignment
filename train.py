@@ -82,7 +82,7 @@ def main(args):
     plt.show()
     
     # Create Training and Validation DataLoaders
-    train_loader = torch.utils.data.DataLoader(training_dataset, batch_size=10, shuffle=True, num_workers=2,
+    train_loader = torch.utils.data.DataLoader(training_dataset, batch_size=32, shuffle=True, num_workers=8,
                                             pin_memory=True if torch.cuda.is_available() else False)
 
     # val_loader = torch.utils.data.DataLoader(validation_dataset, batch_size=10, shuffle=True, num_workers=2,
@@ -101,7 +101,7 @@ def main(args):
     wandb.init(
         # set the wandb project where this run will be logged
         project="5LSM0-WB-UNet-train",
-        
+        name="Quicker-loader-model-train",
         # track hyperparameters and run metadata
         config={
         "learning_rate": 0.01,
