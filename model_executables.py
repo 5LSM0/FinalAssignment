@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 import wandb
 
+import os
 
 def train_model(model, train_loader, val_loader, num_epochs=5, lr=0.01, patience=3):
     criterion = nn.CrossEntropyLoss(ignore_index=255)
@@ -253,6 +254,8 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
 
     # Initialize best_train_loss here
     best_train_loss = float('inf')
+    previous_train_loss = float('inf')
+    stagnation_count = 0
 
     # Create and open a text file
     with open('training_log.txt', 'w') as file:
@@ -299,29 +302,32 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
             # EARLY STOPPING
             # Check if training loss stagnated over three consecutive epochs
             if train_epoch_loss >= previous_train_loss:
-                num_consecutive_epoch_without_improve += 1
+                stagnation_count += 1
             else:
-                num_consecutive_epoch_without_improve = 0
+                stagnation_count = 0  # Reset count if there's improvement
+
+            # Update the previous training loss for the next iteration
+            previous_train_loss = train_epoch_loss
 
             # Save checkpoint every second epoch
             if (epoch + 1) % 2 == 0:
                 save_checkpoint_noval(model, optimizer, epoch, best_train_loss)
 
-            # Update previous_train_loss
-            previous_train_loss = train_epoch_loss
-
-            # Check for early stopping
-            if num_consecutive_epoch_without_improve >= patience:
-                file.write(f"EARLY STOPPING INVOKED: Training halted after {num_consecutive_epoch_without_improve} epochs without improvement.")
+            if stagnation_count >= patience:
+                file.write(f"EARLY STOPPING INVOKED: Training halted after {epoch + 1} epochs without substantial improvement in training loss.")
                 break
+
 
     # Saving the model after the entire training process went interupted
     save_checkpoint_noval(model, optimizer, epoch, best_train_loss)
 
-def save_checkpoint_noval(model, optimizer, epoch, train_loss):
-    checkpoint_path = 'model_checkpoint.pth'
+def save_checkpoint_noval(model, optimizer, epoch, train_loss, checkpoint_folder='checkpoints'):
+    # Create the folder if it doesn't exist
+    os.makedirs(checkpoint_folder, exist_ok=True)
+
+    checkpoint_path = os.path.join(checkpoint_folder, f'model_checkpoint_epoch_{epoch+1}.pth')
     torch.save({
-        'epoch': epoch,
+        'epoch': epoch + 1,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'train_loss': train_loss,
