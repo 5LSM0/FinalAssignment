@@ -283,12 +283,6 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
 
             train_epoch_loss = running_train_loss / len(train_loader)
 
-            # Early stopping functionality based on training loss
-
-            if train_epoch_loss <0.2:
-                file.write(f"EARLY STOPPING INVOKED: Training halted after {epoch + 1} epochs without improvement.")
-                break
-
             # Calculate and print accuracy
             accuracy_train = total_correct_train / total_samples_train
 
@@ -301,6 +295,25 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
 
             # Write to the log file
             file.write(f'Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_epoch_loss:.4f}, Train Accuracy: {accuracy_train:.4f}\n')
+
+            # EARLY STOPPING
+            # Check if training loss stagnated over three consecutive epochs
+            if train_epoch_loss >= previous_train_loss:
+                num_consecutive_epoch_without_improve += 1
+            else:
+                num_consecutive_epoch_without_improve = 0
+
+            # Save checkpoint every second epoch
+            if (epoch + 1) % 2 == 0:
+                save_checkpoint_noval(model, optimizer, epoch, best_train_loss)
+
+            # Update previous_train_loss
+            previous_train_loss = train_epoch_loss
+
+            # Check for early stopping
+            if num_consecutive_epoch_without_improve >= patience:
+                file.write(f"EARLY STOPPING INVOKED: Training halted after {num_consecutive_epoch_without_improve} epochs without improvement.")
+                break
 
     # Saving the model after the entire training process went interupted
     save_checkpoint_noval(model, optimizer, epoch, best_train_loss)

@@ -77,7 +77,7 @@ def main(args):
         plt.title(f'Semantic Segmentation Label {i+1}')
         
     # Save a figure to a PNG format file
-    plt.savefig('Cityspace-test-vis.png')
+    # plt.savefig('Cityspace-test-vis.png')
     
     plt.show()
     
