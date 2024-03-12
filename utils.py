@@ -38,7 +38,7 @@ Label = namedtuple( 'Label' , [
     'color'       , # The color of this label
     ] )
 
-labels = [
+LABELS = [
     #       name                     id    trainId   category            catId     hasInstances   ignoreInEval   color
     Label(  'unlabeled'            ,  0 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
     Label(  'ego vehicle'          ,  1 ,      255 , 'void'            , 0       , False        , True         , (  0,  0,  0) ),
@@ -84,7 +84,7 @@ def map_id_to_train_id(label_id):
     """
     # create a tensor with the same shape as the input tensor and fill it with the value 255
     train_id_tensor = torch.full_like(label_id, 255)
-    for label in labels:
+    for label in LABELS:
         # replace the value in the tensor with the train id if the value in the input tensor is equal to the id of the label
         train_id_tensor[label_id == label.id] = label.trainId
     return train_id_tensor
