@@ -332,3 +332,5 @@ def save_checkpoint_noval(model, optimizer, epoch, train_loss, checkpoint_folder
         'optimizer_state_dict': optimizer.state_dict(),
         'train_loss': train_loss,
     }, checkpoint_path)
+
+

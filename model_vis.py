@@ -69,14 +69,14 @@ def visualize_segmentation_cityscapes(model, dataloader, coloring,  num_examples
                 mask_rgb = mask_to_rgb(mask, coloring)
                 pred_mask_rgb = mask_to_rgb(pred_mask, coloring)
 
-                # unique_classes_gt = np.unique(mask)
-                # unique_classes_pred = np.unique(pred_mask)
+                unique_classes_gt = np.unique(mask)
+                unique_classes_pred = np.unique(pred_mask)
 
-                # unique_classes_gt = np.delete(unique_classes_gt, [0, -1])
-                # unique_classes_pred = np.delete(unique_classes_pred, 0)
+                unique_classes_gt = np.delete(unique_classes_gt, [0, -1])
+                unique_classes_pred = np.delete(unique_classes_pred, 0)
 
-                # unique_classes_gt[unique_classes_gt == 255] = 0
-                # unique_classes_pred[unique_classes_pred == 255] = 0
+                unique_classes_gt[unique_classes_gt == 255] = 0
+                unique_classes_pred[unique_classes_pred == 255] = 0
 
                 # classes_gt = [class_names_cityscapes[int(idx)] for idx in unique_classes_gt]
                 # classes_pred = [class_names_cityscapes[int(idx)] for idx in unique_classes_pred]
