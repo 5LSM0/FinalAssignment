@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
 import wandb
+import utils
 
 import os
 
@@ -257,6 +258,7 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
     previous_train_loss = float('inf')
     stagnation_count = 0
 
+
     # Create and open a text file
     with open('training_log.txt', 'w') as file:
         for epoch in range(num_epochs):
@@ -272,8 +274,10 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
 
                 optimizer.zero_grad()
                 outputs = model(inputs)
+                masks = (masks*255).long().squeeze()     #*255 because the id are normalized between 0-1
+                masks = utils.map_id_to_train_id(masks).to(device)
                 masks = (masks * 255)
-                loss = criterion(outputs, masks.long().squeeze())
+                loss = criterion(outputs, masks)
                 loss.backward()
                 optimizer.step()
 
@@ -310,7 +314,7 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
             previous_train_loss = train_epoch_loss
 
             # Save checkpoint every second epoch
-            if (epoch + 1) % 2 == 0:
+            if (epoch + 1) % 5 == 0:
                 save_checkpoint_noval(model, optimizer, epoch, best_train_loss)
 
             if stagnation_count >= patience:
@@ -326,11 +330,6 @@ def save_checkpoint_noval(model, optimizer, epoch, train_loss, checkpoint_folder
     os.makedirs(checkpoint_folder, exist_ok=True)
 
     checkpoint_path = os.path.join(checkpoint_folder, f'model_checkpoint_epoch_{epoch+1}.pth')
-    torch.save({
-        'epoch': epoch + 1,
-        'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
-        'train_loss': train_loss,
-    }, checkpoint_path)
+    torch.save( model.state_dict(), checkpoint_path)
 
 
