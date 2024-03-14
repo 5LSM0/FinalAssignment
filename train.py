@@ -101,7 +101,7 @@ def main(args):
     wandb.init(
         # set the wandb project where this run will be logged
         project="5LSM0-WB-UNet-train",
-        name="Quicker-loader-model-train",
+        name="Fixed-class-labeling-UNet-train",
         # track hyperparameters and run metadata
         config={
         "learning_rate": 0.01,
