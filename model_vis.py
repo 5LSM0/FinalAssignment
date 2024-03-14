@@ -2,6 +2,8 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
+from utils import class_colors
+
 def mask_to_rgb(mask, class_to_color):
     """
     Converts a numpy mask with multiple classes indicated by integers to a color RGB mask.

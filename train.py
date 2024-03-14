@@ -107,12 +107,12 @@ def main(args):
         "learning_rate": 0.01,
         "architecture": "UNet",
         "dataset": "Cityspace",
-        "epochs": 50,
+        "epochs": 70,
         }
     )
 
     # Train the instanciated model
-    train_model_wandb_noval(model=UNet_model, train_loader=train_loader, num_epochs=50, lr=0.01, patience=4)
+    train_model_wandb_noval(model=UNet_model, train_loader=train_loader, num_epochs=70, lr=0.01, patience=4)
 
     # [optional] finish the wandb run, necessary in notebooks
     wandb.finish()

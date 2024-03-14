@@ -114,8 +114,9 @@ def train_model_noval(model, train_loader, num_epochs=5, lr=0.01, patience=3):
 
                 optimizer.zero_grad()
                 outputs = model(inputs)
-                masks = (masks * 255)
-                loss = criterion(outputs, masks.long().squeeze())
+                masks = (masks*255).long().squeeze()     #*255 because the id are normalized between 0-1
+                masks = utils.map_id_to_train_id(masks).to(device)
+                loss = criterion(outputs, masks)
                 loss.backward()
                 optimizer.step()
 
@@ -276,7 +277,6 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
                 outputs = model(inputs)
                 masks = (masks*255).long().squeeze()     #*255 because the id are normalized between 0-1
                 masks = utils.map_id_to_train_id(masks).to(device)
-                masks = (masks * 255)
                 loss = criterion(outputs, masks)
                 loss.backward()
                 optimizer.step()
