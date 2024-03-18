@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
-from utils import class_colors
+from utils import LABELS
 
 def mask_to_rgb(mask, class_to_color):
     """
@@ -46,6 +46,8 @@ def renormalize_image(image):
     return renormalized_image
 
 def visualize_segmentation_cityscapes(model, dataloader, coloring,  num_examples=5):
+
+    # class_colors = {i: color for i, color in enumerate(label.color for label in LABELS)}
 
     model.eval()
     with torch.no_grad():

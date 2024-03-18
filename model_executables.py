@@ -2,17 +2,13 @@ import torch
 print(torch.__version__)
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
-import matplotlib.pyplot as plt
 
 import wandb
 import utils
 
 import os
 
-def train_model(model, train_loader, val_loader, num_epochs=5, lr=0.01, patience=3):
-    criterion = nn.CrossEntropyLoss(ignore_index=255)
-    optimizer = optim.Adam(model.parameters(), lr=lr)
+def train_model(model, train_loader, val_loader, num_epochs=5, patience=3, optimizer=None, criterion=None):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -33,10 +29,14 @@ def train_model(model, train_loader, val_loader, num_epochs=5, lr=0.01, patience
                 # Move inputs and masks to the GPU
                 inputs, masks = inputs.to(device), masks.to(device)
 
-                optimizer.zero_grad()
+                # FORWARD PASS
                 outputs = model(inputs)
-                masks = (masks * 255)
-                loss = criterion(outputs, masks.long().squeeze())  # .squeeze() - unable to convert a tensor to a 1D tensor
+                masks = (masks*255).long().squeeze()     #*255 because the id are normalized between 0-1
+                masks = utils.map_id_to_train_id(masks).to(device)
+                loss = criterion(outputs, masks)
+
+                # BACKWARD PASS
+                optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
 
@@ -58,8 +58,9 @@ def train_model(model, train_loader, val_loader, num_epochs=5, lr=0.01, patience
                     val_inputs, val_masks = val_inputs.to(device), val_masks.to(device)
 
                     val_outputs = model(val_inputs)
-                    val_masks = (val_masks * 255)
-                    val_loss = criterion(val_outputs, val_masks.long().squeeze())
+                    val_masks = (val_masks*255).long().squeeze()     #*255 because the id are normalized between 0-1
+                    val_masks = utils.map_id_to_train_id(val_masks).to(device)
+                    val_loss = criterion(val_outputs, val_masks)
 
                     running_val_loss += val_loss.item()
 
