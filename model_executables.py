@@ -155,7 +155,7 @@ def train_model_wandb(model, train_loader, val_loader, num_epochs=5, criterion=N
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     best_val_loss = float('inf')
-    
+
     # Create and open a text file
     with open('training_log.txt', 'w') as file:
         for epoch in range(num_epochs):
@@ -221,7 +221,7 @@ def train_model_wandb(model, train_loader, val_loader, num_epochs=5, criterion=N
                 best_val_loss = val_loss
                 num_consecutive_epoch_without_improve = 0
                 # Save the model when validation loss decreases
-                torch.save(model, epoch)
+                save_checkpoint(model, epoch)
             else:
                 num_consecutive_epoch_without_improve += 1
 
@@ -323,11 +323,11 @@ def train_model_wandb_noval(model, train_loader, num_epochs=5, lr=0.01, patience
     # Saving the model after the entire training process went interupted
     save_checkpoint(model, epoch)
 
-def save_checkpoint(model, epoch, checkpint_folder='checkpoints'):
+def save_checkpoint(model, epoch, checkpoint_folder='checkpoints'):
     # Create the folder if it doesn't exist
-    os.makedirs(checkpint_folder, exist_ok=True)
+    os.makedirs(checkpoint_folder, exist_ok=True)
 
-    checkpoint_path = os.path.join(checkpint_folder, f'model_checkpoint_epoch_{epoch+1}.pth')
+    checkpoint_path = os.path.join(checkpoint_folder, f'model_checkpoint_epoch_{epoch+1}.pth')
     torch.save( model.state_dict(), checkpoint_path)
 
 
