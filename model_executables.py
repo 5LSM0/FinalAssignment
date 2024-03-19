@@ -154,6 +154,8 @@ def train_model_noval(model, train_loader, num_epochs=5, lr=0.01, patience=3):
 def train_model_wandb(model, train_loader, val_loader, num_epochs=5, criterion=None, optimizer=None, patience=3):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    best_val_loss = float('inf')
+    
     # Create and open a text file
     with open('training_log.txt', 'w') as file:
         for epoch in range(num_epochs):

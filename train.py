@@ -27,7 +27,7 @@ def main(args):
     # Define the transformations
     data_transforms = transforms.Compose([
         transforms.ToTensor(),  # Convert PIL Image to PyTorch Tensor
-        transforms.Resize((256,256))
+        transforms.Resize((256,256), antialias=True),  # Resize the input image to the given size
     ])
 
     # Create transformed train dataset
@@ -70,7 +70,7 @@ def main(args):
         "learning_rate": 0.01,
         "architecture": "UNet",
         "dataset": "Cityspace",
-        "epochs": 70,
+        "epochs": 100,
         }
     )
 
