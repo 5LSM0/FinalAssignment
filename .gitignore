@@ -1,0 +1,19 @@
+# Ignore compiled Python files
+__pycache__/
+
+# Ignore archives folder
+/archive/
+/scrap/
+/ignore/
+/model_checkpoints/
+
+# Ignore all the .txt. files
+
+# Ignore all the saved PNG files
+
+
+# Ignore 'template-job-script.sh'
+template-job-script.sh
+
+# Ignore all output logs from snellius
+*.out
