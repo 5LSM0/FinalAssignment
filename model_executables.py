@@ -212,24 +212,24 @@ def train_model_wandb(model, train_loader, val_loader, num_epochs=5, criterion=N
 
                 epoch_val_loss = running_val_loss / len(val_loader)
 
-            # # Save checkpoint every 5th epoch starting from the 30th epoch
-            # if (epoch + 1) % 5 == 0 and epoch >= 29:
-            #     save_checkpoint(model,epoch)
+            # Save checkpoint every 5th epoch starting from the 30th epoch
+            if (epoch + 1) % 5 == 0 and epoch >= 29:
+                save_checkpoint(model,epoch)
 
-            # Early stopping functionality
-            if val_loss < best_val_loss:
-                best_val_loss = val_loss
-                num_consecutive_epoch_without_improve = 0
-                # Save the model when validation loss decreases
-                save_checkpoint(model, epoch)
-            else:
-                num_consecutive_epoch_without_improve += 1
+            # # Early stopping functionality
+            # if val_loss < best_val_loss:
+            #     best_val_loss = val_loss
+            #     num_consecutive_epoch_without_improve = 0
+            #     # Save the model when validation loss decreases
+            #     save_checkpoint(model, epoch)
+            # else:
+            #     num_consecutive_epoch_without_improve += 1
 
-            if num_consecutive_epoch_without_improve >= patience:
-                # Save the model to the checkpoint file
-                save_checkpoint(model, epoch)
-                print(f"EARLY STOPPING INVOKED: Training halted after {num_consecutive_epoch_without_improve} epochs without improvement.")
-                break
+            # if num_consecutive_epoch_without_improve >= patience:
+            #     # Save the model to the checkpoint file
+            #     save_checkpoint(model, epoch)
+            #     print(f"EARLY STOPPING INVOKED: Training halted after {num_consecutive_epoch_without_improve} epochs without improvement.")
+            #     break
 
             # Calculate and print accuracy
             accuracy_train = total_correct_train / total_samples_train
